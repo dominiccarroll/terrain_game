@@ -5,6 +5,9 @@ player = {}
 player.x = 50
 player.y = 200
 
+player.realX = 0
+player.realY = 0
+
 player.width = 48
 player.height = 64
 player.speed = 400
@@ -25,12 +28,49 @@ function player:load()
         walkLeft = anim8.newAnimation(g('1-3', 4), 0.1),
         neutral = anim8.newAnimation(g('2-2', 3), 0.1),
     }
-   
+
+    player.tools = {
+        ['pick'] = {
+            image = love.graphics.newImage('images/pick_axe.png'),
+            offset = {20, 50},
+            origin = {0, 40}
+        }
+    }
+    player.tool = {
+        index = 'pick',
+        show = false,
+        r = -math.pi/2,
+        using = false,
+        duration = 0.2,
+        direction = 0,
+        start = nil
+    }
     player.animation = player.animations.neutral
 end 
 
+function player:use(x, y)
+    if player.tool.index == 'pick' and not player.tool.using then
+        player.tool.using = true
+        player.tool.show = true
+        if x < player.realX then
+            player.tool.direction = -1
+        else
+            player.tool.direction = 1
+        end
+        player.tool.start = love.timer.getTime()
+    end
+end
+
 function player:draw(offset)
-    player.animation:draw(player.spriteImage, player.x + offset.x, player.y + offset.y)
+    local playerX, playerY = player.x + offset.x, player.y + offset.y
+    player.realX, player.realY = playerX, playerY
+
+    player.animation:draw(player.spriteImage, playerX, playerY)
+
+    local tool = player.tools[player.tool.index]
+    if player.tool.show then
+        love.graphics.draw(tool.image, playerX + tool.offset[1], playerY + tool.offset[2], player.tool.r, 0.3, 0.3, tool.origin[1], tool.origin[2])
+    end
     love.graphics.setColor(1,1,1)
     love.graphics.print('Jump velocity: ' .. player.jumpVelocity,0,0)
     love.graphics.print('Falling state: ' .. tostring(player.falling),0,10)
@@ -108,4 +148,16 @@ function player:update(dt)
     else
         player.falling = false
     end
+
+    if player.tool.start ~= nil then
+        local toolGradient = (love.timer.getTime()-player.tool.start)/player.tool.duration
+        if toolGradient < 1 then
+            player.tool.r = -math.pi/2 + toolGradient*(math.pi/2) * player.tool.direction
+            print(toolGradient)
+        else
+            player.tool.using = false 
+            player.tool.show = false
+        end
+    end
+
 end

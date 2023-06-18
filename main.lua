@@ -18,3 +18,10 @@ function love.update(dt)
     player:update(dt)
     camera:update(dt)
 end
+
+function love.mousepressed(x, y, btn)
+    if btn == 1 then
+        print('use')
+        player:use(x,y)
+    end
+end
