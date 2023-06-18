@@ -13,17 +13,21 @@ function world:generate()
         -- print(offset)
         local node = {}
         node.x = x*nodeSize
-        node.y = -100 + math.floor(offset*frequency)*nodeSize
+        node.y = -300 + math.floor(offset*frequency)*nodeSize
         node.width = nodeSize
         node.height = nodeSize
 
-        for vertical = 1,200 do
+        node.color = {r = 0, g = 1, b = 0}
+
+        for vertical = 1,100 do
             local v_node = {}
             v_node.x = x*nodeSize
             v_node.width = nodeSize
             v_node.height = nodeSize
             v_node.y = node.y + vertical*v_node.height
-            table.insert(world.map, v_node)
+            v_node.color = {r = 0, g = 0, b = 0.2}
+
+            -- table.insert(world.map, v_node)
             
         end
 
@@ -58,7 +62,7 @@ end
 function world:draw(offset)
     for index,node in ipairs(world.map) do
         if world:isVisible(offset, node.x, node.y, node.width, node.height) then
-            love.graphics.setColor(0,1,0)
+            love.graphics.setColor(node.color.r, node.color.g, node.color.b)
             love.graphics.rectangle("fill", node.x + offset.x, node.y + offset.y, node.width, node.height)
         end
     end
