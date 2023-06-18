@@ -5,6 +5,7 @@ require 'camera'
 
 function love.load()
     world:generate()
+    player:load()
 end
 
 function love.draw()
