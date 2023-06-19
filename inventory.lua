@@ -1,3 +1,5 @@
+require 'items'
+
 inventory = {}
 
 inventory.contents = {}
@@ -5,30 +7,60 @@ inventory.contents = {}
 inventory.interface = {slots={}, hidden = true}
 
 slotSize = 30
+quantity = 4 -- size of slot matrix
+
+function inventory:isFull()
+    return #inventory.contents >= (quantity^2)
+end
+
+function inventory:addItem(name, amount)
+    local function add(n, a)
+        if not inventory:isFull() then
+            local item = {
+                name = n,
+                selected = false,
+                quantity = a
+            }
+            table.insert(inventory.contents, item)
+        else
+            print('inventory full!')
+            -- TO DO: Drop item
+        end
+    end
+    
+    local proto = items.prototypes[name]
+    local stacks = math.floor(amount / proto.maxStack)
+    local remainder = amount % proto.maxStack
+
+    if stacks > 0 then
+        for i = 1, stacks do
+            add(name, proto.maxStack)
+        end
+        if remainder > 0 then
+            add(name, remainder)
+        end
+    else
+        add(name, amount)
+    end
+end
 
 function inventory.interface:load()
+
 
 
     inventory.images = {
         ['pick'] = love.graphics.newImage('images/pick_axe.png'),
         ['dirt'] = love.graphics.newImage('images/blocks/dirt.png')
     }
-    inventory.contents = {
-        {
-            name = 'pick',
-            type = 'tool',
-            icon = inventory.images['pick'],
-            quantity = 1
-        }
-    }
+    
 
-    for i = 1, 3 do
-        table.insert(inventory.contents, {icon = inventory.images['dirt'], quantity = 1})
-    end
+    inventory:addItem('pick', 1)
+    inventory:addItem('dirt', 230)
+
+
 
     local gap = 5
 
-    local quantity = 4
 
     local o = quantity * slotSize + gap * slotSize
 
@@ -49,23 +81,34 @@ end
 
 function inventory.interface:draw()
     for i,s in ipairs(inventory.interface.slots) do
+        local slot =  inventory.contents[i]
+
        if (s.cascade and not inventory.interface.hidden) or not s.cascade then
           love.graphics.setColor(1, 1, 1, 0.5)
+            if slot ~= nil then
+                if slot.selected then
+                    love.graphics.setColor(0.5, 0.5, 1, 0.8)
+                end
+            end
            love.graphics.rectangle('fill', s.x, s.y, s.w, s.h)
        end
     end
 
     for i,s in ipairs(inventory.contents) do
         local slot =  inventory.interface.slots[i]
-        while slot.filled do -- TO DO: MAKE SURE THAT INVENTORY IS NOT FULL
+        local proto = items.prototypes[s.name]
+        while slot.filled do -- TO DO: MAKE SURE THAT IT IS NOT FULL
             i = i + 1
             slot = inventory.interface.slots[i]
         end
         if (slot.cascade and not inventory.interface.hidden) or not slot.cascade then
             love.graphics.setColor(1,1,1)
-            local factor = slotSize/s.icon:getHeight() * .5
-            love.graphics.draw(s.icon, slot.x + (slotSize - s.icon:getWidth()*factor)/2, slot.y + (slotSize - s.icon:getHeight()*factor)/2, 0, factor, factor)
-         end
+            local factor = slotSize/proto.icon:getHeight() * .5
+            love.graphics.draw(proto.icon, slot.x + (slotSize - proto.icon:getWidth()*factor)/2, slot.y + (slotSize - proto.icon:getHeight()*factor)/2, 0, factor, factor)
+            if s.quantity > 1 then
+                love.graphics.print('x' .. tostring(s.quantity), slot.x, slot.y + slotSize - 12)
+            end
+        end
     end
 end
 

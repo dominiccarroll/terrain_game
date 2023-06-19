@@ -1,12 +1,14 @@
 require 'smoke'
 require 'particle'
 require 'world'
+require 'items'
+require 'inventory'
 require 'player'
 require 'camera'
-require 'inventory'
 
 function love.load()
     world:generate()
+    items:load()
     player:load()
     smoke:load()
     inventory.interface:load()
