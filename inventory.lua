@@ -10,23 +10,25 @@ function inventory.interface:load()
 
 
     inventory.images = {
-        ['pick'] = love.graphics.newImage('images/pick_axe.png')
+        ['pick'] = love.graphics.newImage('images/pick_axe.png'),
+        ['dirt'] = love.graphics.newImage('images/blocks/dirt.png')
     }
     inventory.contents = {
         {
             name = 'pick',
             type = 'tool',
-            icon = inventory.images['pick']
+            icon = inventory.images['pick'],
+            quantity = 1
         }
     }
 
-    for i = 1, 30 do
-        table.insert(inventory.contents, {icon = inventory.images['pick']})
+    for i = 1, 3 do
+        table.insert(inventory.contents, {icon = inventory.images['dirt'], quantity = 1})
     end
 
     local gap = 5
 
-    local quantity = 10
+    local quantity = 4
 
     local o = quantity * slotSize + gap * slotSize
 
@@ -61,8 +63,8 @@ function inventory.interface:draw()
         end
         if (slot.cascade and not inventory.interface.hidden) or not slot.cascade then
             love.graphics.setColor(1,1,1)
-            local factor = slotSize/s.icon:getHeight()
-            love.graphics.draw(s.icon, slot.x, slot.y, factor, factor)
+            local factor = slotSize/s.icon:getHeight() * .5
+            love.graphics.draw(s.icon, slot.x + (slotSize - s.icon:getWidth()*factor)/2, slot.y + (slotSize - s.icon:getHeight()*factor)/2, 0, factor, factor)
          end
     end
 end
@@ -73,6 +75,19 @@ function inventory.interface:keyPress(key, unicode)
             inventory.interface.hidden = false
         else
             inventory.interface.hidden = true
+        end
+    end
+end
+
+function inventory.interface:mousePressed(x, y, button)
+    if button == 1 then
+        for _,slot in ipairs(inventory.interface.slots) do
+            if (slot.cascade and not inventory.interface.hidden) or not slot.cascade then
+                if x > slot.x and x < (slot.x + slot.w) and y > slot.y and y < (slot.y + slot.h) then
+                    print('slot clicked')
+                    return true
+                end
+             end
         end
     end
 end

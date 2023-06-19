@@ -30,7 +30,11 @@ function love.update(dt)
 end
 
 function love.mousepressed(x, y, btn)
-    if btn == 1 then
+    local interface = false
+    if inventory.interface:mousePressed(x, y, btn) then
+        interface = true
+    end
+    if btn == 1 and not interface then
         print('use')
         player:use(x,y)
     end
