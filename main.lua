@@ -3,12 +3,13 @@ require 'particle'
 require 'world'
 require 'player'
 require 'camera'
-
+require 'inventory'
 
 function love.load()
     world:generate()
     player:load()
     smoke:load()
+    inventory.interface:load()
 end
 
 function love.draw()
@@ -17,6 +18,8 @@ function love.draw()
     player:draw(offset) 
     particle:draw()
     smoke:draw()
+
+    inventory.interface:draw()
 end
 
 function love.update(dt)
@@ -31,4 +34,8 @@ function love.mousepressed(x, y, btn)
         print('use')
         player:use(x,y)
     end
+end
+
+function love.keypressed(key, unicode)
+    inventory.interface:keyPress(key, unicode)
 end

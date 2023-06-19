@@ -64,7 +64,6 @@ function world:generate()
 
         if 1 == love.math.random(1, 30) then
             world:tree(node.x, node.y)
-            print('tree')
         end
 
         for vertical = 1,40 do
