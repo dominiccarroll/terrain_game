@@ -122,12 +122,39 @@ function inventory.interface:keyPress(key, unicode)
     end
 end
 
+function inventory:deselect()
+    for _,v in ipairs(inventory.contents) do
+        v.selected = false
+    end
+end
+
+function inventory:getSelectedTool()
+    for _,v in ipairs(inventory.contents) do
+        if v.selected then
+            local p = items.prototypes[v.name]
+            if p.type == 'tool' then
+                return p
+            end
+        end
+    end
+end
+
 function inventory.interface:mousePressed(x, y, button)
     if button == 1 then
-        for _,slot in ipairs(inventory.interface.slots) do
+        for index,slot in ipairs(inventory.interface.slots) do
             if (slot.cascade and not inventory.interface.hidden) or not slot.cascade then
                 if x > slot.x and x < (slot.x + slot.w) and y > slot.y and y < (slot.y + slot.h) then
-                    print('slot clicked')
+                    local s = inventory.contents[index]
+
+                    if s ~= nil then
+                        if s.selected then
+                            s.selected = false
+                        else
+                            inventory:deselect()
+                            s.selected = true
+                            print('test')
+                        end
+                    end
                     return true
                 end
              end
