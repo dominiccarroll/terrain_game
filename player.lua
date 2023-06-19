@@ -19,6 +19,14 @@ player.animation = nil
 
 gravity = 400
 
+function CheckCollision(x1,y1,w1,h1, x2,y2,w2,h2)
+    return x1 < x2+w2 and
+           x2 < x1+w1 and
+           y1 < y2+h2 and
+           y2 < y1+h1
+  end
+
+
 function player:load()
     player.spriteImage = love.graphics.newImage('images/player.png')
     local g = anim8.newGrid(48, 64, player.spriteImage:getWidth(), player.spriteImage:getHeight())
@@ -49,6 +57,16 @@ function player:load()
 end 
 
 function player:use(x, y)
+    local nodeClicked
+    print(x .. ', ' .. y)
+    for nodeIndex,node in ipairs(world.map) do
+        if CheckCollision(x, y, 1, 1, node.x + camera.x, node.y + camera.y, node.width, node.height) then
+            table.remove(world.map, nodeIndex)
+            smoke:new(node.x - node.width / 2, node.y - node.height/2)
+            print('success')
+        end 
+    end
+
     if player.tool.index == 'pick' and not player.tool.using then
         player.tool.using = true
         player.tool.show = true
@@ -79,12 +97,6 @@ function player:draw(offset)
 end
 
 function collisionDetection(x,y)
-    local function CheckCollision(x1,y1,w1,h1, x2,y2,w2,h2)
-        return x1 < x2+w2 and
-               x2 < x1+w1 and
-               y1 < y2+h2 and
-               y2 < y1+h1
-      end
       for _,node in ipairs(world.map) do
          if CheckCollision(x,y, player.width, player.height, node.x, node.y, node.width, node.height) and not node.passThrough then
             return true
@@ -153,7 +165,7 @@ function player:update(dt)
         local toolGradient = (love.timer.getTime()-player.tool.start)/player.tool.duration
         if toolGradient < 1 then
             player.tool.r = -math.pi/2 + toolGradient*(math.pi/2) * player.tool.direction
-            print(toolGradient)
+            -- print(toolGradient)
         else
             player.tool.using = false 
             player.tool.show = false
